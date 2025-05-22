@@ -1,42 +1,66 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './App.css'; // Make sure you have this for styling
+import './App.css';
 
 function App() {
   const [todos, setTodos] = useState([]);
-  const [todoText, setTodoText] = useState("");
+  const [todoText, setTodoText] = useState('');
 
-  const API = "https://todo-api-z2c5.onrender.com"; // Change to Render URL after deployment
+  const API = "https://todo-api-z2c5.onrender.com"; // ✅ Your live backend URL
 
   // Fetch all todos
   const fetchTodos = async () => {
-    const response = await axios.get(`${API}/todos/`);
-    setTodos(response.data);
+    try {
+      const response = await axios.get(`${API}/todos/`);
+      setTodos(response.data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
   };
 
   useEffect(() => {
     fetchTodos();
   }, []);
 
-  // Add a new todo
+  // Add new todo
   const addTodo = async () => {
-    if (todoText.trim() === "") return;
+    if (!todoText.trim()) return;
 
     const newTodo = {
       id: Date.now(),
       title: todoText,
-      completed: false
+      completed: false,
     };
 
-    await axios.post(`${API}/todos/`, newTodo);
-    setTodoText("");
-    fetchTodos();
+    try {
+      await axios.post(`${API}/todos/`, newTodo);
+      setTodoText('');
+      fetchTodos();
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
   };
 
-  // Delete a todo
+  // Delete todo
   const deleteTodo = async (id) => {
-    await axios.delete(`${API}/todos/${id}`);
-    fetchTodos();
+    try {
+      await axios.delete(`${API}/todos/${id}`);
+      fetchTodos();
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
+  // Toggle task completion
+  const toggleComplete = async (todo) => {
+    const updatedTodo = { ...todo, completed: !todo.completed };
+
+    try {
+      await axios.put(`${API}/todos/${todo.id}`, updatedTodo);
+      fetchTodos();
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
   };
 
   return (
@@ -56,7 +80,14 @@ function App() {
       <ul className="todo-list">
         {todos.map((todo) => (
           <li key={todo.id} className="todo-item">
-            {todo.title}
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => toggleComplete(todo)}
+            />
+            <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+              {todo.title}
+            </span>
             <button onClick={() => deleteTodo(todo.id)}>❌</button>
           </li>
         ))}
@@ -66,6 +97,7 @@ function App() {
 }
 
 export default App;
+
 
 
 
