@@ -5,10 +5,11 @@ import './App.css';
 function App() {
   const [todos, setTodos] = useState([]);
   const [todoText, setTodoText] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editedText, setEditedText] = useState('');
 
-  const API = "https://todo-api-z2c5.onrender.com"; // ✅ Your live backend URL
+  const API = "https://todo-api-z2c5.onrender.com";
 
-  // Fetch all todos
   const fetchTodos = async () => {
     try {
       const response = await axios.get(`${API}/todos/`);
@@ -22,7 +23,6 @@ function App() {
     fetchTodos();
   }, []);
 
-  // Add new todo
   const addTodo = async () => {
     if (!todoText.trim()) return;
 
@@ -41,7 +41,6 @@ function App() {
     }
   };
 
-  // Delete todo
   const deleteTodo = async (id) => {
     try {
       await axios.delete(`${API}/todos/${id}`);
@@ -51,7 +50,6 @@ function App() {
     }
   };
 
-  // Toggle task completion
   const toggleComplete = async (todo) => {
     const updatedTodo = { ...todo, completed: !todo.completed };
 
@@ -60,6 +58,30 @@ function App() {
       fetchTodos();
     } catch (error) {
       console.error("Error updating todo:", error);
+    }
+  };
+
+  const editTodo = async (todo) => {
+    const updatedTodo = {
+      ...todo,
+      title: editedText,
+    };
+
+    try {
+      await axios.put(`${API}/todos/${todo.id}`, updatedTodo);
+      setEditingId(null);
+      fetchTodos();
+    } catch (error) {
+      console.error("Error editing todo:", error);
+    }
+  };
+
+  const clearAllTodos = async () => {
+    try {
+      await Promise.all(todos.map(todo => axios.delete(`${API}/todos/${todo.id}`)));
+      fetchTodos();
+    } catch (error) {
+      console.error("Error clearing all todos:", error);
     }
   };
 
@@ -85,19 +107,66 @@ function App() {
               checked={todo.completed}
               onChange={() => toggleComplete(todo)}
             />
-            <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-              {todo.title}
-            </span>
+
+            {editingId === todo.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editedText}
+                  onChange={(e) => setEditedText(e.target.value)}
+                  style={{ flexGrow: 1, marginRight: '10px' }}
+                />
+                <button onClick={() => editTodo(todo)}>Save</button>
+              </>
+            ) : (
+              <>
+                <span
+                  style={{
+                    textDecoration: todo.completed ? 'line-through' : 'none',
+                    flexGrow: 1,
+                  }}
+                >
+                  {todo.title}
+                </span>
+                <button
+                  onClick={() => {
+                    setEditingId(todo.id);
+                    setEditedText(todo.title);
+                  }}
+                >
+                  ✏️
+                </button>
+              </>
+            )}
+
             <button onClick={() => deleteTodo(todo.id)}>❌</button>
           </li>
         ))}
       </ul>
+
+      {todos.length > 0 && (
+        <button
+          onClick={clearAllTodos}
+          style={{
+            backgroundColor: '#ff3333',
+            color: 'white',
+            padding: '10px',
+            marginTop: '10px',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            width: '100%',
+            fontWeight: 'bold'
+          }}
+        >
+          Clear All Tasks
+        </button>
+      )}
     </div>
   );
 }
 
 export default App;
-
 
 
 

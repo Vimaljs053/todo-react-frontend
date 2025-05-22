@@ -58,7 +58,7 @@ body {
 .todo-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   padding: 12px;
   background-color: #f9f9f9;
   margin-bottom: 10px;
@@ -66,23 +66,58 @@ body {
 }
 
 .todo-item input[type="checkbox"] {
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .todo-item span {
   flex-grow: 1;
   font-size: 16px;
+  word-break: break-word;
+}
+
+.todo-item input[type="text"] {
+  flex-grow: 1;
+  padding: 6px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 .todo-item button {
-  background-color: #dc3545;
+  background-color: #6c757d;
   border: none;
   color: white;
   padding: 6px 10px;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 14px;
 }
 
 .todo-item button:hover {
+  background-color: #5a6268;
+}
+
+.todo-item button:last-child {
+  background-color: #dc3545;
+}
+
+.todo-item button:last-child:hover {
   background-color: #c82333;
+}
+
+/* Clear All Button */
+button.clear-all {
+  background-color: #ff3333;
+  color: white;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: bold;
+}
+
+button.clear-all:hover {
+  background-color: #cc0000;
 }
